@@ -41,7 +41,10 @@ Example
 Installation
 ------------
 
--  `python -m pip install flask-peewee-crud`
+.. code:: bash
+    
+    python -m pip install flask-peewee-crud
+
 
 Documentation
 -------------
