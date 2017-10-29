@@ -5,7 +5,7 @@ import re
 from setuptools import setup
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
-VERSION_REGEXP = re.compile(r"^__version__ = [\'\"](.+?)[\'\"]$", re.MULTILINE)
+VERSION_REGEXP = re.compile(r"^__version__\s*=\s*[\'\"](.+?)[\'\"]\s*$", re.MULTILINE)
 
 
 def read(fn):
@@ -15,7 +15,7 @@ def read(fn):
 
 def version():
     try:
-        return VERSION_REGEXP.findall(read(os.path.join('aio_space_track_api', '__init__.py')))[0]
+        return VERSION_REGEXP.findall(read(os.path.join(PROJECT_DIR, 'flask_peewee_crud', '__init__.py')))[0]
     except IndexError:
         raise RuntimeError('Unable to determine version.')
 
