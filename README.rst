@@ -1,7 +1,7 @@
 flask-peewee-crud
 =================
 
- |PyPI| |PyPI version|
+|PyPI| |PyPI version|
 
 
 ``flask-peewee-crud`` forked from `sanic_crud <https://github.com/Typhon66/sanic_crud>`_
