@@ -1,11 +1,7 @@
 flask-peewee-crud
 =================
 
-.. image:: https://badge.fury.io/py/flask-peewee-crud.svg
-    :target: https://badge.fury.io/py/flask-peewee-crud
-
-.. image:: https://img.shields.io/pypi/pyversions/flask-peewee-crud.svg
-   S :target: https://pypi.python.org/pypi/flask-peewee-crud
+ |PyPI| |PyPI version|
 
 
 ``flask-peewee-crud`` forked from `sanic_crud <https://github.com/Typhon66/sanic_crud>`_
@@ -52,15 +48,12 @@ Documentation
 
 Documentation can be found in the ``docs`` directory.
 
+.. |PyPI| image:: https://img.shields.io/pypi/v/flask-peewee-crud.svg
+   :target: https://pypi.python.org/pypi/flask-peewee-crud/
+.. |PyPI version| image:: https://img.shields.io/pypi/pyversions/flask-peewee-crud.svg
+   :target: https://pypi.python.org/pypi/flask-peewee-crud/
 
 TODO
 ----
 
 * `See Issues <https://github.com/nkoshell/flask-peewee-crud/issues>`_
-
-
-.. |PyPI| image:: https://badge.fury.io/py/flask-peewee-crud.svg
-    :target: https://badge.fury.io/py/flask-peewee-crud
-
-.. |PyPI version| image:: https://img.shields.io/pypi/pyversions/flask-peewee-crud.svg
-    :target: https://pypi.python.org/pypi/flask-peewee-crud
