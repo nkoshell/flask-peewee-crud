@@ -1,7 +1,7 @@
 flask-peewee-crud
 =================
 
-|Build Status|   |PyPI|   |PyPI version|
+|PyPI|   |PyPI version|
 
 `flask-peewee-crud` forked from `sanic_crud <https://github.com/Typhon66/sanic_crud>`_
 
@@ -50,7 +50,7 @@ Documentation can be found in the ``docs`` directory.
 .. |PyPI| image:: https://badge.fury.io/py/flask-peewee-crud.svg
     :target: https://badge.fury.io/py/flask-peewee-crud
 .. |PyPI version| image:: https://img.shields.io/pypi/pyversions/flask-peewee-crud.svg
-   :target: https://pypi.python.org/pypi/flask-peewee-crud
+    :target: https://pypi.python.org/pypi/flask-peewee-crud
 
 
 TODO
