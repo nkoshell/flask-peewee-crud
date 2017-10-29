@@ -1,9 +1,8 @@
 from peewee import SqliteDatabase, Model, CharField, DateTimeField, IntegerField, ForeignKeyField
-from sanic import Sanic
-from sanic.log import log
+from flask import Flask
 import datetime
 
-from sanic_crud import generate_crud
+from flask_peewee_crud import generate_crud
 
 db = SqliteDatabase('dev_data.db')
 
@@ -25,6 +24,7 @@ class Person(BaseModel):
     email = CharField()
     create_datetime = DateTimeField(default=datetime.datetime.now, null=True)
 
+
 # if there is an error DB already exists
 try:
     db.create_tables([Person, Job])
@@ -35,8 +35,7 @@ try:
 except Exception:
     pass
 
-app = Sanic(__name__)
+app = Flask(__name__)
 
-app.log = log
 generate_crud(app, [Person, Job])
-app.go_fast(host='0.0.0.0', port=8000, debug=True)
+app.run(host='0.0.0.0', port=8000, debug=True)

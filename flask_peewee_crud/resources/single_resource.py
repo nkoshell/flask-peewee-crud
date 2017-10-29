@@ -1,14 +1,14 @@
 import traceback
 
+from flask import request
 from playhouse.shortcuts import model_to_dict
-from sanic.log import log
 
 from ..resources.base_resource import BaseResource
 
 
 # Resource for a single object
 class BaseSingleResource(BaseResource):
-    async def get(self, request, **kwargs):
+    def get(self, **kwargs):
         try:
             shortcuts = self.model.shortcuts
             response_messages = self.config.response_messages
@@ -38,14 +38,14 @@ class BaseSingleResource(BaseResource):
                     message=response_messages.SuccessOk
                 )
         except Exception as e:
-            log.error(traceback.print_exc())
+            self.log.error(traceback.print_exc())
             return self.response_json(
                 message=str(e),
                 status_code=500
             )
 
-    async def put(self, request, **kwargs):
-        valid_request = self.validate_request(request)
+    def put(self, **kwargs):
+        valid_request = self.validate_request()
 
         if valid_request is not True:
             return valid_request
@@ -76,13 +76,13 @@ class BaseSingleResource(BaseResource):
                 message=response_messages.SuccessOk
             )
         except Exception as e:
-            log.error(traceback.print_exc())
+            self.log.error(traceback.print_exc())
             return self.response_json(
                 message=str(e),
                 status_code=500
             )
 
-    async def delete(self, request, **kwargs):
+    def delete(self, **kwargs):
         try:
             shortcuts = self.model.shortcuts
             response_messages = self.config.response_messages
@@ -104,7 +104,7 @@ class BaseSingleResource(BaseResource):
                 message=response_messages.SuccessRowDeleted.format(primary_key)
             )
         except Exception as e:
-            log.error(traceback.print_exc())
+            self.log.error(traceback.print_exc())
             return self.response_json(
                 message=str(e),
                 status_code=500

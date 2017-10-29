@@ -1,10 +1,40 @@
+import inflect
+from flask import jsonify
+from werkzeug.exceptions import HTTPException, default_exceptions
+
 from .config import CrudConfig, CrudShortcuts
-from .resources import BaseSingleResource
 from .resources import BaseCollectionResource
-from sanic.response import json
+from .resources import BaseSingleResource
+
+p = inflect.engine()
+
+
+def make_json_app(app):
+    """
+    Creates a JSON-oriented Flask app.
+
+    All error responses that you don't specifically
+    manage yourself will have application/json content
+    type, and will contain JSON like this (just an example):
+
+    { "message": "405: Method Not Allowed" }
+    """
+
+    def make_json_error(ex):
+        response = jsonify(message=str(ex))
+        response.status_code = (ex.code
+                                if isinstance(ex, HTTPException)
+                                else 500)
+        return response
+
+    for code in default_exceptions.keys():
+        app.register_error_handler(code, make_json_error)
+
+    return app
 
 
 def generate_crud(app, model_array):
+    app = make_json_app(app)
     # Setup Configuration
     base_config = app.config.crud_config if hasattr(app.config, 'crud_config') else CrudConfig
     for model in model_array:
@@ -19,18 +49,21 @@ def generate_crud(app, model_array):
 
         # Generate Resources and Routes
         base_uri = model.route_url if hasattr(model, 'route_url') else shortcuts.base_uri
-        SingleResource = type('SingleResource', (BaseSingleResource,), {'model': model, 'config': config})
-        CollectionResource = type('CollectionResource', (BaseCollectionResource,), {'model': model, 'config': config})
-        app.add_route(
-            SingleResource.as_view(),
-            base_uri + '/<{}:{}>'.format(shortcuts.primary_key, shortcuts.primary_key_type)
+        attrs = {'model': model, 'config': config, 'app': app}
+        SingleResource = type('SingleResource', (BaseSingleResource,), attrs)
+        CollectionResource = type('CollectionResource', (BaseCollectionResource,), attrs)
+        app.add_url_rule(
+            base_uri + '/<{}:{}>'.format(shortcuts.primary_key_type, shortcuts.primary_key),
+            view_func=SingleResource.as_view(shortcuts.table_name),
+
         )
-        app.add_route(
-            CollectionResource.as_view(), base_uri
+        app.add_url_rule(
+            base_uri,
+            view_func=CollectionResource.as_view(p.plural(shortcuts.table_name))
         )
 
     # Add base route
-    app.add_route(_generate_base_route(model_array), '/', methods=['GET'])
+    app.add_url_rule('/', view_func=_generate_base_route(model_array), methods=['GET'])
 
 
 def _generate_base_route(model_array):
@@ -56,13 +89,13 @@ def _generate_base_route(model_array):
             'fields': fields
         }
 
-    async def base_route(request):
+    def base_route():
         response_data = {
             'data': {'routes': tables},
             'status_code': 200,
             'message': 'OK'
         }
 
-        return json(response_data, status=200)
+        return jsonify(response_data)
 
     return base_route

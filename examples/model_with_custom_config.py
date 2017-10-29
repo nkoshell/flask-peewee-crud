@@ -1,6 +1,6 @@
 from peewee import CharField, DateTimeField, SqliteDatabase, Model
 import datetime
-from sanic_crud import CrudConfig
+from flask_peewee_crud import CrudConfig
 
 
 db = SqliteDatabase('my_app.db')

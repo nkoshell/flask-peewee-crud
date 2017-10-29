@@ -1,6 +1,6 @@
-# Using APIs built with sanic_crud
+# Using APIs built with flask_peewee_crud
 
-sanic_crud creates a standard REST API that allows direct manipulation of the database. The following methods are
+flask_peewee_crud creates a standard REST API that allows direct manipulation of the database. The following methods are
 supported: [GET, POST, PUT, DELETE]
 
 There are 2 types of resources (endpoints) available, Single Resources and Collection Resources.

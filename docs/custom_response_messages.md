@@ -8,7 +8,7 @@ the message is displayed. You can customize these messages on a per model basis 
   from peewee import MySQLDatabase, Model
   import datetime
   import os
-  from sanic_crud import CrudConfig, ResponseMessages
+  from flask_peewee_crud import CrudConfig, ResponseMessages
   
   db = MySQLDatabase(
       os.environ['MYSQL_DB'],
@@ -36,4 +36,4 @@ the message is displayed. You can customize these messages on a per model basis 
   ```
   
 This will create a custom message whenever ErrorTypeDatetime is triggered. You can do this for every error message. 
-The default error messages can be found in the sanic_crud/crud_config.py file
+The default error messages can be found in the flask_peewee_crud/crud_config.py file

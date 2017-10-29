@@ -1,15 +1,15 @@
+import datetime
 import traceback
 from math import ceil
-import datetime
 
+from flask import request
 from playhouse.shortcuts import model_to_dict
-from sanic.log import log
 
 from ..resources.base_resource import BaseResource
 
 
 def collection_filter(func):
-    def wrapped(self, request, *args, **kwargs):
+    def wrapped(self, *args, **kwargs):
         model = self.model
         shortcuts = model.shortcuts
 
@@ -35,15 +35,17 @@ def collection_filter(func):
 
             # Validate that a supported comparison is used
             if comparison not in self.config.FILTER_OPTIONS:
-                return self.response_json(status_code=400,
-                                          message=response_messages.ErrorInvalidFilterOption.format(comparison, shortcuts.FILTER_OPTIONS))
+                return self.response_json(
+                    status_code=400,
+                    message=response_messages.ErrorInvalidFilterOption.format(comparison, shortcuts.FILTER_OPTIONS)
+                )
 
             # Validate that the field is part of the table
             if field not in fields:
                 return self.response_json(status_code=400,
                                           message=response_messages.ErrorInvalidField.format(key, fields.keys()))
 
-            log.error(value)
+            self.log.error(value)
             # Validate that the value is the correct type
             if comparison in ['in', 'notin']:
                 value = value.split(',')
@@ -82,7 +84,7 @@ def collection_filter(func):
 
         kwargs['filtered_results'] = query
 
-        return func(self, request, *args, **kwargs)
+        return func(self, *args, **kwargs)
 
     return wrapped
 
@@ -97,7 +99,9 @@ def _validate_field_type(self, field, value):
             int(value)
         except (ValueError, TypeError):
             return self.response_json(status_code=400,
-                                      message=response_messages.ErrorTypeInteger.format(value) if expected_field_type == 'int' else response_messages.ErrorTypeBoolean.format(value))
+                                      message=(response_messages.ErrorTypeInteger.format(value)
+                                               if expected_field_type == 'int' else
+                                               response_messages.ErrorTypeBoolean.format(value)))
 
     elif expected_field_type == 'datetime':
         try:
@@ -115,7 +119,7 @@ def _validate_field_type(self, field, value):
 # Resource for multiple objects
 class BaseCollectionResource(BaseResource):
     @collection_filter
-    async def get(self, request, **kwargs):
+    def get(self, **kwargs):
         try:
             response_messages = self.config.response_messages
 
@@ -150,13 +154,13 @@ class BaseCollectionResource(BaseResource):
                                       page=page,
                                       total_pages=total_pages)
         except Exception as e:
-            log.error(traceback.print_exc())
+            self.log.error(traceback.print_exc())
             return self.response_json(message=str(e),
                                       status_code=500
                                       )
 
-    async def post(self, request):
-        valid_request = self.validate_request(request)
+    def post(self):
+        valid_request = self.validate_request()
 
         if valid_request is not True:
             return valid_request
@@ -168,7 +172,7 @@ class BaseCollectionResource(BaseResource):
                                       message=self.config.response_messages.SuccessRowCreated.format(result.id)
                                       )
         except Exception as e:
-            log.error(traceback.print_exc())
+            self.log.error(traceback.print_exc())
             return self.response_json(message=str(e),
                                       status_code=500
                                       )

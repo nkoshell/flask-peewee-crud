@@ -1,13 +1,13 @@
 # Custom Configuration
 
-There are several values that are configured by default in sanic_crud,
+There are several values that are configured by default in flask-peewee-crud,
 such as how many entries per page there can be for a collection resource. These values are actually configurable
 per model through a special crud_config attribute
 
 For example, if you want to set the maximum pages to 200 instead of 100, you could create your model like this
 
   ```python
-  from sanic_crud import CrudConfig
+  from flask_peewee_crud import CrudConfig
   from peewee import CharField, DateTimeField, SqliteDatabase, Model
   import datetime
   
@@ -28,7 +28,7 @@ For example, if you want to set the maximum pages to 200 instead of 100, you cou
   
   ```
   
-The default configuration values can be found in the sanic_crud/crud_config.py file
+The default configuration values can be found in the flask_peewee_crud/crud_config.py file
 
 This will update the config for this model when you use it. You can also do this to change the messages that you see as well
 

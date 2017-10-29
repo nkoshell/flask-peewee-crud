@@ -2,12 +2,12 @@
 
 By default, routes for models are defined as `/{tablename}`. You may wish to customzie this route in some cases.
 You can do this by adding a `route_url` variable in the model class definition. Keep in mind that if you have
-duplicate route definitions you will get an exception from Sanic.
+duplicate route definitions you will get an exception from Flask.
 
 For example, if you want to prepend your url with `/api` you can do this
 
   ```python
-  from sanic_crud import CrudConfig
+  from flask_peewee_crud import CrudConfig
   from peewee import CharField, DateTimeField, SqliteDatabase, Model
   import datetime
   

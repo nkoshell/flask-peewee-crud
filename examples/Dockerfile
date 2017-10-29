@@ -1,7 +1,7 @@
 FROM python:3.6
 
 ADD . /code
-RUN pip3 install git+https://github.com/Typhon66/sanic_crud.git
+RUN pip3 install git+https://github.com/nkoshell/flask-peewee-crud.git
 
 EXPOSE 8000
 

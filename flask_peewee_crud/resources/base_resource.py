@@ -1,34 +1,42 @@
-from sanic.views import HTTPMethodView
-from sanic.response import json
+import logging
+
+from flask import jsonify, request
+from flask.views import MethodView
 
 
-class BaseResource(HTTPMethodView):
+class BaseResource(MethodView):
     model = None
+    app = None
+    config = None
 
-    def validate_request(self, request):
+    @property
+    def log(self):
+        return getattr(self.app, 'logger', logging.getLogger(self.__class__.__name__))
+
+    def validate_request(self):
 
         if request.method in ['POST', 'PUT']:
-            valid_json = self._validate_json(request)
+            valid_json = self._validate_json()
             if valid_json is not True:
                 return valid_json
 
-        valid_fields = self._validate_fields(request)
+        valid_fields = self._validate_fields()
         if valid_fields is not True:
             return valid_fields
 
-        valid_types = self._validate_field_types(request)
+        valid_types = self._validate_field_types()
         if valid_types is not True:
             return valid_types
 
-        valid_pk = self._validate_primary_key_immutable(request)
+        valid_pk = self._validate_primary_key_immutable()
         if valid_pk is not True:
             return valid_pk
 
-        valid_length = self._validate_field_length(request)
+        valid_length = self._validate_field_length()
         if valid_length is not True:
             return valid_length
 
-        valid_size = self._validate_field_size(request)
+        valid_size = self._validate_field_size()
         if valid_size is not True:
             return valid_size
 
@@ -47,7 +55,9 @@ class BaseResource(HTTPMethodView):
         if total_pages:
             response_data['total_pages'] = total_pages
 
-        return json(response_data, status=status_code)
+        response = jsonify(response_data)
+        response.status_code = status_code
+        return response
 
     def get_model(self, pk):
         try:
@@ -56,7 +66,7 @@ class BaseResource(HTTPMethodView):
         except self.model.DoesNotExist:
             return {}
 
-    def _validate_json(self, request):
+    def _validate_json(self):
         try:
             valid = request.json
             return True
@@ -64,14 +74,14 @@ class BaseResource(HTTPMethodView):
             return self.response_json(status_code=400,
                                       message=self.config.response_messages.ErrorInvalidJSON)
 
-    def _validate_primary_key_immutable(self, request):
+    def _validate_primary_key_immutable(self):
         if self.model.shortcuts.primary_key in request.json:
             return self.response_json(status_code=400,
                                       message=self.config.response_messages.ErrorPrimaryKeyUpdateInsert)
         else:
             return True
 
-    def _validate_field_types(self, request):
+    def _validate_field_types(self):
         shortcuts = self.model.shortcuts
         response_messages = self.config.response_messages
         fields = shortcuts.editable_fields
@@ -93,18 +103,20 @@ class BaseResource(HTTPMethodView):
 
         return True
 
-    def _validate_fields(self, request):
+    def _validate_fields(self):
         fields = self.model.shortcuts.editable_fields
         request_data = request.json
 
         for key in request_data:
             if key not in fields:
-                return self.response_json(status_code=400,
-                                          message=self.config.response_messages.ErrorInvalidField.format(key, fields.keys()))
+                return self.response_json(
+                    status_code=400,
+                    message=self.config.response_messages.ErrorInvalidField.format(key, fields.keys())
+                )
 
         return True
 
-    def _validate_field_length(self, request):
+    def _validate_field_length(self):
         shortcuts = self.model.shortcuts
         response_messages = self.config.response_messages
 
@@ -123,19 +135,23 @@ class BaseResource(HTTPMethodView):
                         send_error = True
 
                 if send_error:
-                    return self.response_json(status_code=400,
-                                              message=response_messages.ErrorNonNullableFieldInsert.format(field, required_fields))
+                    return self.response_json(
+                        status_code=400,
+                        message=response_messages.ErrorNonNullableFieldInsert.format(field, required_fields)
+                    )
 
             if field in request_data:
                 if hasattr(field_object, 'max_length'):
                     max_length = field_object.max_length
                     if len(request_data.get(field)) > max_length:
-                        return self.response_json(status_code=400,
-                                                  message=response_messages.ErrorFieldOutOfRange.format(field, 0, max_length))
+                        return self.response_json(
+                            status_code=400,
+                            message=response_messages.ErrorFieldOutOfRange.format(field, 0, max_length)
+                        )
 
         return True
 
-    def _validate_field_size(self, request):
+    def _validate_field_size(self):
         shortcuts = self.model.shortcuts
         response_messages = self.config.response_messages
         request_data = request.json
@@ -152,8 +168,9 @@ class BaseResource(HTTPMethodView):
                 continue
 
             if not min_size <= value <= max_size:
-                return self.response_json(status_code=400,
-                                          message=response_messages.ErrorFieldOutOfRange.format(key, min_size, max_size))
+                return self.response_json(
+                    status_code=400,
+                    message=response_messages.ErrorFieldOutOfRange.format(key, min_size, max_size)
+                )
 
         return True
-
